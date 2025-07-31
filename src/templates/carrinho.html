@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrinho - Loja Virtual{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">
+        <i class="fas fa-shopping-cart"></i> Meu Carrinho
+    </h1>
+
+    {% if carrinho %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Preço</th>
+                        <th>Quantidade</th>
+                        <th>Subtotal</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in carrinho %}
+                        <tr>
+                            <td>{{ item.nome }}</td>
+                            <td>R$ {{ "%.2f"|format(item.preco) }}</td>
+                            <td>
+                                <div class="input-group" style="width: 150px;">
+                                    <a href="{{ url_for('atualizar_carrinho', produto_id=item.id, quantidade=item.quantidade-1) }}" 
+                                       class="btn btn-sm btn-outline-secondary">-</a>
+                                    <input type="text" class="form-control text-center" value="{{ item.quantidade }}" readonly>
+                                    <a href="{{ url_for('atualizar_carrinho', produto_id=item.id, quantidade=item.quantidade+1) }}" 
+                                       class="btn btn-sm btn-outline-secondary">+</a>
+                                </div>
+                            </td>
+                            <td>R$ {{ "%.2f"|format(item.subtotal) }}</td>
+                            <td>
+                                <a href="{{ url_for('remover_carrinho', produto_id=item.id) }}" 
+                                   class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total:</th>
+                        <th>R$ {{ "%.2f"|format(total) }}</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <a href="{{ url_for('produtos') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Continuar Comprando
+                </a>
+                <a href="{{ url_for('limpar_carrinho') }}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Limpar Carrinho
+                </a>
+            </div>
+            <div class="col-md-6 text-end">
+                {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('finalizar_pedido') }}" style="display: inline;">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check"></i> Finalizar Pedido
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Faça login para finalizar
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4>Seu carrinho está vazio</h4>
+            <p>Adicione produtos ao seu carrinho para continuar.</p>
+            <a href="{{ url_for('produtos') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> Ver Produtos
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
